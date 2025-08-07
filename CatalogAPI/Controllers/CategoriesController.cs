@@ -4,7 +4,7 @@ namespace CatalogAPI.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class CategoryController : ControllerBase
+public class CategoriesController : ControllerBase
 {
     [HttpGet]
     public string Get()
