@@ -1,6 +1,5 @@
 using CatalogAPI.Context;
 using CatalogAPI.Domain;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
