@@ -37,7 +37,7 @@ public class CategoriesController : ControllerBase
         return categories;
     }
     
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int:min(1)}")]
     public ActionResult<Category>Get(int id)
     {
         var category = _context.Categories.AsNoTracking().FirstOrDefault(p => p.CategoryId == id);
@@ -61,7 +61,7 @@ public class CategoriesController : ControllerBase
             new { id = category.CategoryId }, category);
     }
     
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:int:min(1)}")]
     public ActionResult Put(int id, Category category)
     {
         if (id != category.CategoryId)
@@ -75,7 +75,7 @@ public class CategoriesController : ControllerBase
         return Ok(category);
     }
     
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:int:min(1)}")]
     public ActionResult Delete(int id)
     {
         var category = _context.Categories.FirstOrDefault(p => p.CategoryId == id);

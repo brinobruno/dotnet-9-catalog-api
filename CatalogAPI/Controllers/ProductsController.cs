@@ -26,7 +26,7 @@ namespace CatalogAPI.Controllers
             return products;
         }
         
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int:min(1)}")]
         public ActionResult<Product>Get(int id)
         {
             var product = _context.Products.AsNoTracking().FirstOrDefault(p => p.ProductId == id);
@@ -50,7 +50,7 @@ namespace CatalogAPI.Controllers
             new { id = product.ProductId }, product);
         }
         
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int:min(1)}")]
         public ActionResult Put(int id, Product product)
         {
             if (id != product.ProductId)
@@ -64,7 +64,7 @@ namespace CatalogAPI.Controllers
             return Ok(product);
         }
         
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int:min(1)}")]
         public ActionResult<Product>Delete(int id)
         {
             var product = _context.Products.FirstOrDefault(p => p.ProductId == id);
