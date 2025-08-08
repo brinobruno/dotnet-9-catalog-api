@@ -16,9 +16,9 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> Get()
+        public async Task<ActionResult<IEnumerable<Product>>> GetAsync()
         {
-            var products = _context.Products.AsNoTracking().ToList();
+            var products = await _context.Products.AsNoTracking().ToListAsync();
             if (products is null)
             {
                 return NotFound("No products found");
@@ -27,9 +27,9 @@ namespace CatalogAPI.Controllers
         }
         
         [HttpGet("{id:int:min(1)}")]
-        public ActionResult<Product>Get(int id)
+        public async Task<ActionResult<Product>> GetAsync(int id)
         {
-            var product = _context.Products.AsNoTracking().FirstOrDefault(p => p.ProductId == id);
+            var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ProductId == id);
             
             if (product is null)
             {
