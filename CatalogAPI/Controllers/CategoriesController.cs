@@ -1,5 +1,6 @@
 ﻿using CatalogAPI.Context;
 using CatalogAPI.Domain;
+using CatalogAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,18 @@ public class CategoriesController : ControllerBase
     public CategoriesController(AppDbContext context)
     {
         _context = context;
+    }
+
+    [HttpGet("/usingFromService/{name}")]
+    public ActionResult<string> GetGreetingFromServices([FromServices] IMyService myService, string name)
+    {
+        return myService.Greeting(name);
+    }
+    
+    [HttpGet("/notUsingFromService/{name}")]
+    public ActionResult<string> GetGreetingNotFromServices(IMyService myService, string name)
+    {
+        return myService.Greeting(name);
     }
     
     [HttpGet("products")]
