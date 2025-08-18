@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using CatalogAPI.Context;
 using CatalogAPI.Extensions;
 using CatalogAPI.Repositories;
-using CatalogAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -32,7 +31,6 @@ string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConne
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection, ServerVersion.AutoDetect(mySqlConnection)));
 
-builder.Services.AddTransient<IMyService, MyService>();
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 
 var app = builder.Build();

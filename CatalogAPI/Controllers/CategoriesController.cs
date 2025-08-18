@@ -1,7 +1,6 @@
 ﻿using CatalogAPI.Context;
 using CatalogAPI.Domain;
 using CatalogAPI.Repositories;
-using CatalogAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,18 +16,6 @@ public class CategoriesController : ControllerBase
     {
         _context = context;
         _repo = repo;
-    }
-
-    [HttpGet("/usingFromService/{name}")]
-    public ActionResult<string> GetGreetingFromServices([FromServices] IMyService myService, string name)
-    {
-        return myService.Greeting(name);
-    }
-    
-    [HttpGet("/notUsingFromService/{name}")]
-    public ActionResult<string> GetGreetingNotFromServices(IMyService myService, string name)
-    {
-        return myService.Greeting(name);
     }
     
     [HttpGet("products")]
@@ -47,9 +34,9 @@ public class CategoriesController : ControllerBase
     }
     
     [HttpGet]
-    public ActionResult<IEnumerable<Category>> Get()
+    public async Task<ActionResult<IEnumerable<Category>>> Get()
     {
-        var categories = _repo.GetCategories();
+        var categories = await _repo.GetCategoriesAsync();
         if (categories is null)
         {
             return NotFound("No categories found");

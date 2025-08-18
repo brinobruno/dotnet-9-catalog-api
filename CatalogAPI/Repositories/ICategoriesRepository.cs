@@ -4,5 +4,5 @@ namespace CatalogAPI.Repositories;
 
 public interface ICategoriesRepository
 {
-    IEnumerable<Category> GetCategories();
+    Task<IEnumerable<Category>> GetCategoriesAsync();
 }

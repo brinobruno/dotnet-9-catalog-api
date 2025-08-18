@@ -12,8 +12,10 @@ public class CategoriesRepository : ICategoriesRepository
         _context = context;
     }
 
-    public IEnumerable<Category> GetCategories()
+    public async Task<IEnumerable<Category>> GetCategoriesAsync()
     {
-        return _context.Categories.AsNoTracking();
+        return await _context.Categories
+            .AsNoTracking()
+            .ToListAsync();
     }
 }
