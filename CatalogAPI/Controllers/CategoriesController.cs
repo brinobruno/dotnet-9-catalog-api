@@ -1,5 +1,6 @@
 ﻿using CatalogAPI.Context;
 using CatalogAPI.Domain;
+using CatalogAPI.Repositories;
 using CatalogAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,11 @@ namespace CatalogAPI.Controllers;
 public class CategoriesController : ControllerBase
 {
     private readonly AppDbContext _context;
-    public CategoriesController(AppDbContext context)
+    private readonly ICategoriesRepository  _repo;
+    public CategoriesController(AppDbContext context, ICategoriesRepository  repo)
     {
         _context = context;
+        _repo = repo;
     }
 
     [HttpGet("/usingFromService/{name}")]
@@ -44,14 +47,14 @@ public class CategoriesController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Category>>> GetAsync()
+    public ActionResult<IEnumerable<Category>> Get()
     {
-        var categories = await _context.Categories.AsNoTracking().ToListAsync();
+        var categories = _repo.GetCategories();
         if (categories is null)
         {
             return NotFound("No categories found");
         }
-        return categories;
+        return Ok(categories);
     }
     
     [HttpGet("{id:int:min(1)}")]
