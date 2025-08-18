@@ -11,7 +11,7 @@ namespace CatalogAPI.Controllers;
 public class CategoriesController : ControllerBase
 {
     private readonly ICategoriesRepository  _repo;
-    public CategoriesController(AppDbContext context, ICategoriesRepository  repo)
+    public CategoriesController(ICategoriesRepository repo)
     {
         _repo = repo;
     }
