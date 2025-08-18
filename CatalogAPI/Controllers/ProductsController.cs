@@ -10,9 +10,11 @@ namespace CatalogAPI.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public ProductsController(AppDbContext context)
+        private readonly ILogger<ProductsController> _logger;
+        public ProductsController(AppDbContext context, ILogger<ProductsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -29,6 +31,8 @@ namespace CatalogAPI.Controllers
         [HttpGet("{id:int:min(1)}")]
         public async Task<ActionResult<Product>> GetAsync(int id)
         {
+            _logger.LogInformation($"Getting product {id}");
+            
             var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ProductId == id);
             
             if (product is null)
