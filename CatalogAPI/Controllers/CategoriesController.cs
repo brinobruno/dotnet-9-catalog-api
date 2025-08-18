@@ -10,27 +10,21 @@ namespace CatalogAPI.Controllers;
 [ApiController]
 public class CategoriesController : ControllerBase
 {
-    private readonly AppDbContext _context;
     private readonly ICategoriesRepository  _repo;
     public CategoriesController(AppDbContext context, ICategoriesRepository  repo)
     {
-        _context = context;
         _repo = repo;
     }
     
     [HttpGet("products")]
-    public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesProductsAsync()
+    public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesProducts()
     {
-        var categories = await _context.Categories
-            .AsNoTracking()
-            .Include(p => p.Products)
-            .ToListAsync();
-
+        var categories = await _repo.GetCategoriesProductsAsync();
         if (categories is null)
         {
             return NotFound("No categories found");
         }
-        return categories;
+        return Ok(categories);
     }
     
     [HttpGet]
@@ -47,10 +41,7 @@ public class CategoriesController : ControllerBase
     [HttpGet("{id:int:min(1)}")]
     public async Task<ActionResult<Category>> GetAsync(int id)
     {
-        var category = await _context.Categories
-            .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.CategoryId == id);
-            
+        var category = await _repo.GetCategoryByIdAsync(id);
         if (category is null)
         {
             return NotFound("No category found");
@@ -63,11 +54,10 @@ public class CategoriesController : ControllerBase
     {
         if (category is null) return BadRequest();
             
-        _context.Categories.Add(category);
-        _context.SaveChanges();
+        var newCategory = _repo.CreateCategory(category);
 
         return new CreatedAtRouteResult("",
-            new { id = category.CategoryId }, category);
+            new { id = newCategory.CategoryId }, newCategory);
     }
     
     [HttpPut("{id:int:min(1)}")]
@@ -78,24 +68,22 @@ public class CategoriesController : ControllerBase
             return BadRequest();
         }
 
-        _context.Entry(category).State = EntityState.Modified;
-        _context.SaveChanges();
+        var updatedCategory = _repo.UpdateCategory(category);
 
-        return Ok(category);
+        return Ok(updatedCategory);
     }
     
     [HttpDelete("{id:int:min(1)}")]
     public ActionResult Delete(int id)
     {
-        var category = _context.Categories.FirstOrDefault(p => p.CategoryId == id);
+        var category = _repo.GetCategoryById(id);
 
         if (category is null)
         {
             return NotFound("No category found");
         }
             
-        _context.Categories.Remove(category);
-        _context.SaveChanges();
+        _repo.DeleteCategory(category);
             
         return Ok();
     }
