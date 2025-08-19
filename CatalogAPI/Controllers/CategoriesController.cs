@@ -10,16 +10,18 @@ namespace CatalogAPI.Controllers;
 [ApiController]
 public class CategoriesController : ControllerBase
 {
-    private readonly ICategoriesRepository  _repo;
-    public CategoriesController(ICategoriesRepository repo)
+    private readonly IRepository<Category> _repo;
+    private readonly ICategoriesRepository _categoryRepo;
+    public CategoriesController(IRepository<Category> repo, ICategoriesRepository categoryRepo)
     {
         _repo = repo;
+        _categoryRepo = categoryRepo;
     }
     
     [HttpGet("products")]
     public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesProducts()
     {
-        var categories = await _repo.GetCategoriesProductsAsync();
+        var categories = await _categoryRepo.GetCategoriesProductsAsync();
         if (categories is null)
         {
             return NotFound("No categories found");
@@ -30,7 +32,7 @@ public class CategoriesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Category>>> Get()
     {
-        var categories = await _repo.GetCategoriesAsync();
+        var categories = await _repo.GetAsync();
         if (categories is null)
         {
             return NotFound("No categories found");
@@ -41,7 +43,7 @@ public class CategoriesController : ControllerBase
     [HttpGet("{id:int:min(1)}")]
     public async Task<ActionResult<Category>> GetAsync(int id)
     {
-        var category = await _repo.GetCategoryByIdAsync(id);
+        var category = await _repo.GetAsync(c => c.CategoryId == id);
         if (category is null)
         {
             return NotFound("No category found");
@@ -54,7 +56,7 @@ public class CategoriesController : ControllerBase
     {
         if (category is null) return BadRequest();
             
-        var newCategory = _repo.CreateCategory(category);
+        var newCategory = _repo.Create(category);
 
         return new CreatedAtRouteResult("",
             new { id = newCategory.CategoryId }, newCategory);
@@ -68,22 +70,22 @@ public class CategoriesController : ControllerBase
             return BadRequest();
         }
 
-        var updatedCategory = _repo.UpdateCategory(category);
+        var updatedCategory = _repo.Update(category);
 
         return Ok(updatedCategory);
     }
     
     [HttpDelete("{id:int:min(1)}")]
-    public ActionResult Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var category = _repo.GetCategoryById(id);
+        var category = await _repo.GetAsync(c => c.CategoryId == id);
 
         if (category is null)
         {
             return NotFound("No category found");
         }
             
-        _repo.DeleteCategory(category);
+        _repo.Delete(category);
             
         return Ok();
     }

@@ -2,12 +2,7 @@
 
 namespace CatalogAPI.Repositories;
 
-public interface IProductsRepository
+public interface IProductsRepository : IRepository<Product>
 {
-    Task<IEnumerable<Product>> GetProductsAsync();
-    Task<Product> GetProductByIdAsync(int id);
-    Product GetProductById(int id);
-    Product CreateProduct(Product product);
-    Product UpdateProductById(Product product);
-    Product DeleteProductById(Product product);
+    IEnumerable<Product> GetProductsByCategoryAsync(int id);
 }
