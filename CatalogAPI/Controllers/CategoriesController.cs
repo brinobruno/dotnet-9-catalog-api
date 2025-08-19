@@ -10,18 +10,16 @@ namespace CatalogAPI.Controllers;
 [ApiController]
 public class CategoriesController : ControllerBase
 {
-    private readonly IRepository<Category> _repo;
-    private readonly ICategoriesRepository _categoryRepo;
-    public CategoriesController(IRepository<Category> repo, ICategoriesRepository categoryRepo)
+    private readonly IUnitOfWork _uof;
+    public CategoriesController(IUnitOfWork uof)
     {
-        _repo = repo;
-        _categoryRepo = categoryRepo;
+        _uof = uof;
     }
     
     [HttpGet("products")]
     public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesProducts()
     {
-        var categories = await _categoryRepo.GetCategoriesProductsAsync();
+        var categories = await _uof.CategoryRepository.GetCategoriesProductsAsync();
         if (categories is null)
         {
             return NotFound("No categories found");
@@ -32,7 +30,7 @@ public class CategoriesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Category>>> Get()
     {
-        var categories = await _repo.GetAsync();
+        var categories = await _uof.CategoryRepository.GetAsync();
         if (categories is null)
         {
             return NotFound("No categories found");
@@ -43,7 +41,7 @@ public class CategoriesController : ControllerBase
     [HttpGet("{id:int:min(1)}")]
     public async Task<ActionResult<Category>> GetAsync(int id)
     {
-        var category = await _repo.GetAsync(c => c.CategoryId == id);
+        var category = await _uof.CategoryRepository.GetAsync(c => c.CategoryId == id);
         if (category is null)
         {
             return NotFound("No category found");
@@ -56,7 +54,8 @@ public class CategoriesController : ControllerBase
     {
         if (category is null) return BadRequest();
             
-        var newCategory = _repo.Create(category);
+        var newCategory = _uof.CategoryRepository.Create(category);
+        _uof.Commit();
 
         return new CreatedAtRouteResult("",
             new { id = newCategory.CategoryId }, newCategory);
@@ -70,7 +69,8 @@ public class CategoriesController : ControllerBase
             return BadRequest();
         }
 
-        var updatedCategory = _repo.Update(category);
+        var updatedCategory = _uof.CategoryRepository.Update(category);
+        _uof.Commit();
 
         return Ok(updatedCategory);
     }
@@ -78,14 +78,15 @@ public class CategoriesController : ControllerBase
     [HttpDelete("{id:int:min(1)}")]
     public async Task<ActionResult> Delete(int id)
     {
-        var category = await _repo.GetAsync(c => c.CategoryId == id);
+        var category = await _uof.CategoryRepository.GetAsync(c => c.CategoryId == id);
 
         if (category is null)
         {
             return NotFound("No category found");
         }
             
-        _repo.Delete(category);
+        _uof.CategoryRepository.Delete(category);
+        _uof.Commit();
             
         return Ok();
     }

@@ -10,20 +10,18 @@ namespace CatalogAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly IRepository<Product> _repo;
-        private readonly IProductsRepository _productRepo;
+        private readonly IUnitOfWork _uof;
         private readonly ILogger<ProductsController> _logger;
-        public ProductsController(IProductsRepository repo, IProductsRepository productRepo, ILogger<ProductsController> logger)
+        public ProductsController(IUnitOfWork uof, ILogger<ProductsController> logger)
         {
-            _repo = repo;
-            _productRepo = productRepo;
+            _uof = uof;
             _logger = logger;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAsync()
         {
-            var products = await _repo.GetAsync();
+            var products = await _uof.ProductRepository.GetAsync();
             if (products is null)
             {
                 return NotFound("No products found");
@@ -36,7 +34,7 @@ namespace CatalogAPI.Controllers
         {
             _logger.LogInformation($"Getting product {id}");
 
-            var product = await _repo.GetAsync(p => p.ProductId == id);
+            var product = await _uof.ProductRepository.GetAsync(p => p.ProductId == id);
             
             if (product is null)
             {
@@ -50,7 +48,8 @@ namespace CatalogAPI.Controllers
         {
             if (product is null) return BadRequest();
 
-            var createdProduct = _repo.Create(product);
+            var createdProduct = _uof.ProductRepository.Create(product);
+            _uof.Commit();
 
             return new CreatedAtRouteResult("",
             new { id = createdProduct.ProductId }, createdProduct);
@@ -64,7 +63,8 @@ namespace CatalogAPI.Controllers
                 return BadRequest();
             }
 
-            var updatedProduct = _repo.Update(product);
+            var updatedProduct = _uof.ProductRepository.Update(product);
+            _uof.Commit();
 
             return Ok(updatedProduct);
         }
@@ -72,14 +72,15 @@ namespace CatalogAPI.Controllers
         [HttpDelete("{id:int:min(1)}")]
         public async Task<ActionResult<Product>> Delete(int id)
         {
-            var product = await _repo.GetAsync(p => p.ProductId == id);
+            var product = await _uof.ProductRepository.GetAsync(p => p.ProductId == id);
 
             if (product is null)
             {
                 return NotFound("No product found");
             }
 
-            var deletedProduct = _repo.Delete(product);
+            var deletedProduct = _uof.ProductRepository.Delete(product);
+            _uof.Commit();
             
             return Ok(deletedProduct.ProductId);
         }
